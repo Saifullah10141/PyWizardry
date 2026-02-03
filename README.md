@@ -16,7 +16,7 @@
 
 ---
 
-## 🎉 What's New in v1.0.1
+## 🎉 What's New in v1.0.2
 
 - ✨ **150+ utility functions** across 16 specialized modules
 - 🔥 **Advanced async utilities** with built-in rate limiting and task queues
@@ -651,7 +651,7 @@ network:
   timeout: 30
   retries: 3
   backoff_factor: 2
-  user_agent: PyWizardry/1.0.1
+  user_agent: PyWizardry/1.0.2
   proxy: ${HTTP_PROXY}
 
 async:
@@ -826,8 +826,7 @@ SOFTWARE.
 
 ### Stay Connected
 
-[![GitHub stars](https://img.shields.io/github/stars/saif/pywizardry?style=social)](https://github.com/Saifullah10141/pywizardry)
-[![Twitter Follow](https://img.shields.io/twitter/follow/pywizardry?style=social)](https://twitter.com/pywizardry)
+[![GitHub stars](https://img.shields.io/github/stars/saif/pywizardry?style=social)](https://github.com/Saifullah10141/PyWizardry/stargazers)
 
 </div>
 
@@ -850,7 +849,7 @@ A: See our [Contributing Guidelines](https://pywizardry.vercel.app/contributing)
 ## 🙏 Acknowledgments
 
 Special thanks to:
-- All [contributors](https://github.com/Saifullah10141/pywizardry) who have helped improve PyWizardry
+- All [contributors](https://github.com/Saifullah10141/pywizardry/graphs/contributors) who have helped improve PyWizardry
 - The Python community for inspiration and feedback
 - Open-source projects that make PyWizardry possible
 
@@ -874,7 +873,7 @@ Special thanks to:
 
 <div align="center">
 
-**Built with ❤️ and ✨ magic by [Saif](https://github.com/saif)**
+**Built with ❤️ and ✨ magic by [Saif](https://github.com/Saifullah10141)**
 
 *Making Python development magical, one utility at a time*
 
