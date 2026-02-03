@@ -1,5 +1,5 @@
 """
-PyWizardry v1.0.1 - A magical collection of 150+ Python utilities for modern development
+PyWizardry v1.0.2 - A magical collection of 150+ Python utilities for modern development
 Author: Saif
 Email: saifullahanwar00040@gmail.com
 Website: https://pywizardry.vercel.app
@@ -17,7 +17,7 @@ FEATURES:
 - Optional extended features
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __author__ = "Saif"
 __license__ = "MIT"
 __all__ = [
@@ -67,7 +67,6 @@ import tarfile
 import pathlib
 import decimal
 import fractions
-import hashlib
 import secrets
 import hmac
 import binascii
@@ -76,122 +75,53 @@ import warnings
 import textwrap
 import difflib
 import pprint
-import itertools
 import functools
 import operator
 import copy
 import html
-import html.parser
-import cgi
+from html import parser as html_parser
 import email
-import email.mime
-import email.mime.text
-import email.mime.multipart
-import email.mime.base
-import email.utils
-import quopri
-import uu
+from email import mime
+from email.mime import text as mime_text
+from email.mime import multipart as mime_multipart
+from email.mime import base as mime_base
+from email import utils as email_utils
 import zlib
 import bz2
 import lzma
 import struct
 import array
-import wave
-import audioop
 import ssl
 import select
 import selectors
 import signal
 import mmap
-import curses
 import getopt
 import getpass
 import platform
 import locale
 import cmd
 import shlex
-import readline
-import rlcompleter
 import sqlite3
-import csv
 import configparser
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 import xml.sax
 import xml.sax.handler
 import xml.sax.saxutils
-import hashlib
-import hmac
-import secrets
-import base64
-import binascii
-import itertools
-import math
-import statistics
-import random
-import decimal
-import fractions
-import numbers
-import datetime
-import time
-import calendar
-import collections
 import heapq
 import bisect
-import array
 import weakref
 import types
-import copy
-import pprint
 import reprlib
 import enum
 import graphlib
 import zoneinfo
 import ipaddress
-import hashlib
-import secrets
-import hmac
-import base64
-import binascii
-import html
-import html.parser
-import cgi
-import email
-import email.mime
-import email.mime.text
-import email.mime.multipart
-import email.mime.base
-import email.utils
-import quopri
-import uu
-import zlib
-import bz2
-import lzma
-import struct
-import wave
-import audioop
-import ssl
-import select
-import selectors
-import signal
-import mmap
-import curses
-import getopt
-import getpass
-import platform
-import locale
-import cmd
-import shlex
-import readline
-import rlcompleter
-import sqlite3
-import csv
-import configparser
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
-import xml.sax
-import xml.sax.handler
-import xml.sax.saxutils
+import calendar
+import numbers
+import traceback
+import io
 
 from pathlib import Path
 from typing import (
@@ -255,6 +185,56 @@ from statistics import (
     linear_regression,
 )
 
+# ==================== PLATFORM-SPECIFIC IMPORTS ====================
+# Handle platform-specific imports with try/except
+try:
+    import curses
+    CURSES_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    CURSES_AVAILABLE = False
+    curses = None
+
+try:
+    import readline
+    import rlcompleter
+    READLINE_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    READLINE_AVAILABLE = False
+    readline = None
+    rlcompleter = None
+
+# Handle deprecated imports (Python 3.11+)
+try:
+    import cgi
+    CGI_AVAILABLE = True
+except ImportError:
+    CGI_AVAILABLE = False
+    cgi = None
+
+try:
+    import uu
+    UU_AVAILABLE = True
+except ImportError:
+    UU_AVAILABLE = False
+    uu = None
+
+try:
+    import wave
+    import audioop
+    AUDIO_AVAILABLE = True
+except ImportError:
+    AUDIO_AVAILABLE = False
+    wave = None
+    audioop = None
+
+try:
+    import quopri
+    QUOPRI_AVAILABLE = True
+except ImportError:
+    QUOPRI_AVAILABLE = False
+    quopri = None
+
+# ==================== OPTIONAL DEPENDENCIES ====================
 # Import optional dependencies conditionally
 try:
     import colorama
@@ -262,6 +242,9 @@ try:
     COLORAMA_AVAILABLE = True
 except ImportError:
     COLORAMA_AVAILABLE = False
+    colorama = None
+    Fore = Back = Style = type('DummyColor', (), {'__getattr__': lambda self, name: ''})()
+    init = lambda **kwargs: None
 
 try:
     import aiohttp
@@ -269,18 +252,22 @@ try:
     AIO_AVAILABLE = True
 except ImportError:
     AIO_AVAILABLE = False
+    aiohttp = None
+    aiofiles = None
 
 try:
     import psutil
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
+    psutil = None
 
 try:
     from PIL import Image, ImageFilter, ImageEnhance
     PILLOW_AVAILABLE = True
 except ImportError:
     PILLOW_AVAILABLE = False
+    Image = ImageFilter = ImageEnhance = None
 
 # ==================== CUSTOM EXCEPTIONS ====================
 class MagicError(Exception):
@@ -315,7 +302,7 @@ class ConfigurationError(MagicError):
     """Raised for configuration errors"""
     pass
 
-# ==================== DECORATORS (30+ decorators) ====================
+# ==================== DECORATORS ====================
 def spell_timer(print_result: bool = False):
     """Time execution of spells with optional result printing"""
     def decorator(func):
@@ -519,7 +506,7 @@ def rate_limit_spell(calls: int = 10, period: float = 1.0):
         return wrapper
     return decorator
 
-# ==================== FILE SYSTEM MAGIC (35+ functions) ====================
+# ==================== FILE SYSTEM MAGIC ====================
 class FileMagic:
     """File system utilities with atomic operations and progress tracking"""
     
@@ -694,9 +681,8 @@ class FileMagic:
         return backup_file
     
     @staticmethod
-    @async_spell(timeout=30)
-    def async_download(url: str, destination: Union[str, Path], 
-                       chunk_size: int = 8192) -> Path:
+    async def async_download(url: str, destination: Union[str, Path], 
+                           chunk_size: int = 8192) -> Path:
         """Async file download with progress"""
         if not AIO_AVAILABLE:
             raise ImportError("aiohttp and aiofiles required for async download")
@@ -729,34 +715,37 @@ class FileMagic:
     def watch_directory(path: Union[str, Path], handler: Callable,
                         extensions: List[str] = None, recursive: bool = True) -> threading.Thread:
         """Watch directory for changes (simplified)"""
-        from watchdog.observers import Observer
-        from watchdog.events import FileSystemEventHandler
-        
-        class EventHandler(FileSystemEventHandler):
-            def on_created(self, event):
-                if not event.is_directory:
-                    if extensions:
-                        if any(event.src_path.endswith(ext) for ext in extensions):
-                            handler(event.src_path, 'created')
-                    else:
-                        handler(event.src_path, 'created')
+        try:
+            from watchdog.observers import Observer
+            from watchdog.events import FileSystemEventHandler
             
-            def on_modified(self, event):
-                if not event.is_directory:
-                    if extensions:
-                        if any(event.src_path.endswith(ext) for ext in extensions):
+            class EventHandler(FileSystemEventHandler):
+                def on_created(self, event):
+                    if not event.is_directory:
+                        if extensions:
+                            if any(event.src_path.endswith(ext) for ext in extensions):
+                                handler(event.src_path, 'created')
+                        else:
+                            handler(event.src_path, 'created')
+                
+                def on_modified(self, event):
+                    if not event.is_directory:
+                        if extensions:
+                            if any(event.src_path.endswith(ext) for ext in extensions):
+                                handler(event.src_path, 'modified')
+                        else:
                             handler(event.src_path, 'modified')
-                    else:
-                        handler(event.src_path, 'modified')
-        
-        observer = Observer()
-        event_handler = EventHandler()
-        observer.schedule(event_handler, str(path), recursive=recursive)
-        observer.start()
-        
-        return observer
+            
+            observer = Observer()
+            event_handler = EventHandler()
+            observer.schedule(event_handler, str(path), recursive=recursive)
+            observer.start()
+            
+            return observer
+        except ImportError:
+            raise ImportError("watchdog required for directory watching")
 
-# ==================== STRING SORCERY (25+ functions) ====================
+# ==================== STRING SORCERY ====================
 class StringSorcery:
     """Advanced string manipulation with NLP helpers"""
     
@@ -902,8 +891,8 @@ class StringSorcery:
         ngrams1 = get_ngrams(string1.lower())
         ngrams2 = get_ngrams(string2.lower())
         
-        vec1 = Counter(ngrams1)
-        vec2 = Counter(ngrams2)
+        vec1 = collections.Counter(ngrams1)
+        vec2 = collections.Counter(ngrams2)
         
         intersection = set(vec1.keys()) & set(vec2.keys())
         numerator = sum([vec1[x] * vec2[x] for x in intersection])
@@ -1055,7 +1044,7 @@ class StringSorcery:
         
         return ' '.join(result)
 
-# ==================== SECURITY SPELLS (20+ functions) ====================
+# ==================== SECURITY SPELLS ====================
 class SecuritySpells:
     """Security utilities with encryption, hashing, and token generation"""
     
@@ -1067,9 +1056,13 @@ class SecuritySpells:
     @staticmethod
     def aes_encrypt(plaintext: str, password: str) -> Dict[str, Any]:
         """AES encryption with password"""
+        try:
+            from Crypto.Cipher import AES
+            from Crypto.Util.Padding import pad
+        except ImportError:
+            raise ImportError("pycryptodome required for AES encryption")
+        
         import hashlib
-        from Crypto.Cipher import AES
-        from Crypto.Util.Padding import pad
         import base64
         
         # Generate key from password
@@ -1094,9 +1087,13 @@ class SecuritySpells:
     @staticmethod
     def aes_decrypt(encrypted_data: Dict[str, str], password: str) -> str:
         """AES decryption"""
+        try:
+            from Crypto.Cipher import AES
+            from Crypto.Util.Padding import unpad
+        except ImportError:
+            raise ImportError("pycryptodome required for AES decryption")
+        
         import hashlib
-        from Crypto.Cipher import AES
-        from Crypto.Util.Padding import unpad
         import base64
         
         key = hashlib.sha256(password.encode()).digest()
@@ -1386,7 +1383,7 @@ class SecuritySpells:
         else:
             raise ValueError(f"Unsupported algorithm: {algorithm}")
 
-# ==================== TIME WIZARDRY (15+ functions) ====================
+# ==================== TIME WIZARDRY ====================
 class TimeWizardry:
     """Advanced date and time utilities with timezone support"""
     
@@ -1581,9 +1578,12 @@ class TimeWizardry:
             dt = datetime.datetime.now()
         
         if timezone:
-            import pytz
-            tz = pytz.timezone(timezone)
-            dt = dt.astimezone(tz)
+            try:
+                import pytz
+                tz = pytz.timezone(timezone)
+                dt = dt.astimezone(tz)
+            except ImportError:
+                raise ImportError("pytz required for timezone support")
         
         # Check if weekday
         if dt.weekday() >= 5:
@@ -1743,7 +1743,7 @@ class TimeWizardry:
         
         print("\rCountdown finished!     ")
 
-# ==================== NETWORK ENCHANTMENTS (20+ functions) ====================
+# ==================== NETWORK ENCHANTMENTS ====================
 class NetworkEnchantments:
     """Advanced network utilities with async support"""
     
@@ -1762,7 +1762,7 @@ class NetworkEnchantments:
         
         if headers is None:
             headers = {
-                "User-Agent": "PyWizardry/1.0.1",
+                "User-Agent": "PyWizardry/1.0.2",
                 "Accept": "application/json",
             }
         
@@ -1812,7 +1812,6 @@ class NetworkEnchantments:
             }
     
     @staticmethod
-    @async_spell(timeout=60)
     async def async_fetch_json(url: str,
                                method: str = "GET",
                                headers: Dict[str, str] = None,
@@ -1826,7 +1825,7 @@ class NetworkEnchantments:
         
         if headers is None:
             headers = {
-                "User-Agent": "PyWizardry/1.0.1",
+                "User-Agent": "PyWizardry/1.0.2",
                 "Accept": "application/json",
             }
         
@@ -1872,7 +1871,7 @@ class NetworkEnchantments:
         dest_path = Path(destination)
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         
-        req = urllib.request.Request(url, headers={"User-Agent": "PyWizardry/1.0.1"})
+        req = urllib.request.Request(url, headers={"User-Agent": "PyWizardry/1.0.2"})
         
         with urllib.request.urlopen(req) as response:
             total_size = int(response.headers.get('content-length', 0))
@@ -2049,7 +2048,7 @@ class NetworkEnchantments:
         
         return thread
 
-# ==================== DATA ALCHEMY (20+ functions) ====================
+# ==================== DATA ALCHEMY ====================
 class DataAlchemy:
     """Advanced data processing and transformation"""
     
@@ -2371,7 +2370,7 @@ class DataAlchemy:
         
         return result
 
-# ==================== CONSOLE MAGIC (8+ functions) ====================
+# ==================== CONSOLE MAGIC ====================
 class ConsoleMagic:
     """Colorful console output and formatting"""
     
@@ -2408,7 +2407,7 @@ class ConsoleMagic:
         if not COLORAMA_AVAILABLE:
             return text
         
-        colorama.init(autoreset=True)
+        init(autoreset=True)
         
         color_code = ""
         if color and color in ConsoleMagic.COLORS:
@@ -2520,6 +2519,82 @@ class ConsoleMagic:
             
             print(row_line)
 
+# ==================== VALIDATION CHARMS ====================
+class ValidationCharms:
+    """Input validation and data verification utilities"""
+    
+    @staticmethod
+    def is_email(email_str: str) -> bool:
+        """Validate email address"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email_str) is not None
+    
+    @staticmethod
+    def is_url(url_str: str) -> bool:
+        """Validate URL"""
+        pattern = r'^https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w .?=&%-]*$'
+        return re.match(pattern, url_str) is not None
+    
+    @staticmethod
+    def is_phone(phone_str: str) -> bool:
+        """Validate phone number"""
+        pattern = r'^\+?[\d\s\-\(\)]{7,}$'
+        return re.match(pattern, phone_str) is not None
+    
+    @staticmethod
+    def is_ip_address(ip_str: str) -> bool:
+        """Validate IP address"""
+        try:
+            import ipaddress
+            ipaddress.ip_address(ip_str)
+            return True
+        except ValueError:
+            return False
+    
+    @staticmethod
+    def is_credit_card(card_number: str) -> bool:
+        """Validate credit card number using Luhn algorithm"""
+        card_number = card_number.replace(" ", "").replace("-", "")
+        
+        if not card_number.isdigit():
+            return False
+        
+        # Luhn algorithm
+        total = 0
+        reverse_digits = card_number[::-1]
+        
+        for i, digit in enumerate(reverse_digits):
+            n = int(digit)
+            if i % 2 == 1:
+                n *= 2
+                if n > 9:
+                    n -= 9
+            total += n
+        
+        return total % 10 == 0
+
+# ==================== ASYNC MAGIC ====================
+class AsyncMagic:
+    """Async utilities and helpers"""
+    
+    @staticmethod
+    async def run_with_timeout(coro: Coroutine, timeout: float) -> Any:
+        """Run coroutine with timeout"""
+        try:
+            return await asyncio.wait_for(coro, timeout)
+        except asyncio.TimeoutError:
+            raise AsyncError(f"Operation timed out after {timeout} seconds")
+    
+    @staticmethod
+    def to_async(func: Callable) -> Callable:
+        """Convert sync function to async"""
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await asyncio.get_event_loop().run_in_executor(
+                None, lambda: func(*args, **kwargs)
+            )
+        return wrapper
+
 # ==================== MAIN WIZARD CLASS ====================
 class Wizard:
     """Main PyWizardry interface with all magical utilities"""
@@ -2549,15 +2624,22 @@ class Wizard:
         self.data = DataAlchemy()
         self.console = ConsoleMagic()
         self.validation = ValidationCharms()
+        self.async_utils = AsyncMagic()
         
         # Optional modules
         if PILLOW_AVAILABLE:
-            from .images import ImageMagic
-            self.images = ImageMagic()
+            try:
+                from .images import ImageMagic
+                self.images = ImageMagic()
+            except (ImportError, ModuleNotFoundError):
+                self.images = None
         
         if PSUTIL_AVAILABLE:
-            from .system import SystemMagic
-            self.system = SystemMagic()
+            try:
+                from .system import SystemMagic
+                self.system = SystemMagic()
+            except (ImportError, ModuleNotFoundError):
+                self.system = None
         
         # Cache storage
         self._cache = {}
@@ -2655,7 +2737,6 @@ class Wizard:
             return result
         return pipeline
 
-
 # ==================== SPELLBOOK CLASS ====================
 class SpellBook:
     """Collection of related spells (functions)"""
@@ -2679,7 +2760,6 @@ class SpellBook:
         """List all available spells"""
         return list(self.spells.keys())
 
-
 # ==================== HELPER FUNCTIONS ====================
 def create_pipeline(functions: List[Callable]) -> Callable:
     """Create a pipeline of functions"""
@@ -2690,12 +2770,10 @@ def create_pipeline(functions: List[Callable]) -> Callable:
         return result
     return pipeline
 
-
 def benchmark(functions: List[Callable], iterations: int = 1000, *args, **kwargs):
     """Benchmark multiple functions"""
     wiz = Wizard()
     return wiz.benchmark(functions, iterations, *args, **kwargs)
-
 
 # ==================== MODULE EXPORTS ====================
 # Create default wizard instance
@@ -2733,15 +2811,12 @@ utils = types.SimpleNamespace(
     standardize=DataAlchemy.standardize,
 )
 
-# Export async module if available
-if AIO_AVAILABLE:
-    async_utils = types.SimpleNamespace(
-        fetch=NetworkEnchantments.async_fetch_json,
-        run_with_timeout=AsyncMagic.run_with_timeout,
-        to_async=AsyncMagic.to_async,
-    )
-else:
-    async_utils = None
+# Export async module
+async_utils = types.SimpleNamespace(
+    fetch=NetworkEnchantments.async_fetch_json,
+    run_with_timeout=AsyncMagic.run_with_timeout,
+    to_async=AsyncMagic.to_async,
+)
 
 # Export parallel module
 parallel = types.SimpleNamespace(
@@ -2814,7 +2889,6 @@ def initialize(color_output: bool = True, async_mode: bool = False) -> Wizard:
         async_mode=async_mode,
     )
 
-
 # Print welcome message
 if __name__ != "__main__":
     if COLORAMA_AVAILABLE:
@@ -2833,20 +2907,3 @@ if __name__ != "__main__":
         print(welcome)
     else:
         print(f"PyWizardry v{__version__} loaded successfully!")
-
-# Clean up imports
-del types, pickle, gzip, zipfile, tarfile, mimetypes, uuid, math, statistics
-del collections, inspect, threading, queue, contextlib, html, html.parser, cgi
-del email, email.mime, email.mime.text, email.mime.multipart, email.mime.base
-del email.utils, quopri, uu, zlib, bz2, lzma, struct, wave, audioop, ssl
-del select, selectors, signal, mmap, curses, getopt, getpass, platform, locale
-del cmd, shlex, readline, rlcompleter, sqlite3, csv, configparser, ET, minidom
-del xml, xml.sax, xml.sax.handler, xml.sax.saxutils, hashlib, hmac, secrets
-del base64, binascii, itertools, decimal, fractions, numbers, datetime, time
-del calendar, heapq, bisect, array, weakref, copy, pprint, reprlib, enum
-del graphlib, zoneinfo, ipaddress, html, html.parser, cgi, email, email.mime
-del email.mime.text, email.mime.multipart, email.mime.base, email.utils, quopri
-del uu, zlib, bz2, lzma, struct, wave, audioop, ssl, select, selectors, signal
-del mmap, curses, getopt, getpass, platform, locale, cmd, shlex, readline
-del rlcompleter, sqlite3, csv, configparser, ET, minidom, xml, xml.sax
-del xml.sax.handler, xml.sax.saxutils
